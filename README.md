@@ -17,10 +17,6 @@ activate venv
 <code/>pip3 install -r requirements.txt </code>
 <code/>pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cu126 </code>
 
-* Надеяться на то, что cuda уже установлена, хотя в новых версиях pytorch вроде есть встроенный cuda-toolkit.
-* Без ускорителя ждать результат можно бесконечно.
-* Если вариант - только cpu, то стоит добавить в класс модели квантование после загрузки
-
 #### Запуск
 * Поправить промпт на нужный в последней ячейке с кодом main.ipynb
 * Нажать run all
@@ -45,29 +41,34 @@ activate venv
 ### Pydantic модели
 
 class PlannerOutput(BaseModel):
-*    item: str
-*    country: str
-*    target_country: str
-
+*    item: str = Field(description="Product name")
+*    country: str = Field(description="Country of origin")
+*    target_country: str = Field(description="Target country for finding similar products")
 
 class ProductDescriptionWriterOutput(BaseModel):
-*    item_description: str
+*    item_description: str = Field(description="Product description")
 
+class ReActThoughtsOutput(BaseModel):
+*    thoughts: str = Field(description="Current thoughts and reasoning")
+*    action: str = Field(description="Next action: search_ddg, search_wikipedia, or finish")
+*    action_input: str = Field(description="Input for the action")
+*    target_items: List[str] = Field(description="Temporary target items list", default_factory=list)
+*    evidence: List[str] = Field(description="Collected evidence from searches", default_factory=list)
 
 class ProductRecommenderOutput(BaseModel):
-*    target_items: List[str]
-*    taste_similarity: List[float]
-*    use_cases: List[str]
-*    package: List[str]
-
+*    target_items: List[str] = Field(description="Recommended products")
+*    taste_similarity: List[float] = Field(description="Taste similarity score")
+*    use_cases: List[str] = Field(description="Usage scenarios")
+*    package: List[str] = Field(description="Packaging options")
+*    search_evidence: List[str] = Field(description="Evidence from search results", default_factory=list)
 
 class ProductCriticOutput(BaseModel):
-*    target_item: str
-
+*    target_item: str = Field(description="Selected product")
+*    selection_reason: str = Field(description="Reason for selection based on search evidence")
 
 class PipelineState(BaseModel):
-    human_request: Optional[str] = None
-    planner: Optional[PlannerOutput] = None
-    product_description_writer: Optional[ProductDescriptionWriterOutput] = None
-    product_recommender: Optional[ProductRecommenderOutput] = None
-    product_critic: Optional[ProductCriticOutput] = None
+*    human_request: Optional[str] = None
+*    planner: Optional[PlannerOutput] = None
+*    product_description_writer: Optional[ProductDescriptionWriterOutput] = None
+*    product_recommender: Optional[ProductRecommenderOutput] = None
+*    product_critic: Optional[ProductCriticOutput] = None
